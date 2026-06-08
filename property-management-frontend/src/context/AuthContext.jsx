@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import client from '../api/client'
+import authClient from '../api/authClient'
 
 const AuthContext = createContext(null)
 
@@ -14,8 +14,8 @@ export function AuthProvider({ children }) {
       return
     }
 
-    client
-      .get('/user')
+    authClient
+      .get('/me')
       .then((res) => setUser(res.data))
       .catch(() => {
         localStorage.removeItem('token')
@@ -26,14 +26,14 @@ export function AuthProvider({ children }) {
   }, [token])
 
   const login = async (email, password) => {
-    const res = await client.post('/login', { email, password })
+    const res = await authClient.post('/login', { email, password })
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
     setUser(res.data.user)
   }
 
   const register = async (name, email, password) => {
-    const res = await client.post('/register', { name, email, password })
+    const res = await authClient.post('/register', { name, email, password })
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
     setUser(res.data.user)
@@ -41,7 +41,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await client.post('/logout')
+      await authClient.post('/logout')
     } finally {
       localStorage.removeItem('token')
       setToken(null)

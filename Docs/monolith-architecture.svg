@@ -1,0 +1,59 @@
+<svg width="100%" viewBox="0 0 560 420" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Property Management — Monolith Architecture</title>
+  <desc>React SPA (Vite) sends REST calls to Laravel backend. Laravel connects to MySQL via Eloquent. phpMyAdmin provides a DB admin UI. All backend services run in a single Docker Compose network.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- React App (outside Docker) -->
+  <rect x="200" y="18" width="160" height="52" rx="8" fill="rgb(230,241,251)" stroke="rgb(24,95,165)" stroke-width="0.5"/>
+  <text x="280" y="40" text-anchor="middle" dominant-baseline="central" fill="rgb(12,68,124)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" font-weight="500">React App</text>
+  <text x="280" y="58" text-anchor="middle" dominant-baseline="central" fill="rgb(24,95,165)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12">Vite · port 5173</text>
+
+  <!-- Arrow: React → Laravel -->
+  <line x1="280" y1="70" x2="280" y2="124" stroke="rgb(115,114,108)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="286" y="99" fill="rgb(61,61,58)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="11">REST · Bearer token · :8000</text>
+
+  <!-- Docker Compose boundary -->
+  <rect x="20" y="108" width="520" height="285" rx="16" fill="none" stroke="rgba(31,30,29,0.15)" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="36" y="102" fill="rgb(61,61,58)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12">Docker Compose network</text>
+
+  <!-- Laravel Backend -->
+  <rect x="160" y="126" width="240" height="160" rx="10" fill="rgb(225,245,238)" stroke="rgb(15,110,86)" stroke-width="0.5"/>
+  <text x="280" y="152" text-anchor="middle" dominant-baseline="central" fill="rgb(8,80,65)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" font-weight="500">Laravel Backend</text>
+  <text x="280" y="172" text-anchor="middle" dominant-baseline="central" fill="rgb(15,110,86)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12">PHP 8.4 · port 8000</text>
+
+  <!-- Domain pills -->
+  <rect x="174" y="190" width="90" height="26" rx="6" fill="rgb(225,245,238)" stroke="rgb(15,110,86)" stroke-width="0.5"/>
+  <text x="219" y="206" text-anchor="middle" dominant-baseline="central" fill="rgb(15,110,86)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12">Auth</text>
+
+  <rect x="296" y="190" width="90" height="26" rx="6" fill="rgb(225,245,238)" stroke="rgb(15,110,86)" stroke-width="0.5"/>
+  <text x="341" y="206" text-anchor="middle" dominant-baseline="central" fill="rgb(15,110,86)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12">Users</text>
+
+  <rect x="174" y="226" width="90" height="26" rx="6" fill="rgb(225,245,238)" stroke="rgb(15,110,86)" stroke-width="0.5"/>
+  <text x="219" y="242" text-anchor="middle" dominant-baseline="central" fill="rgb(15,110,86)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12">Properties</text>
+
+  <rect x="296" y="226" width="90" height="26" rx="6" fill="rgb(225,245,238)" stroke="rgb(15,110,86)" stroke-width="0.5"/>
+  <text x="341" y="242" text-anchor="middle" dominant-baseline="central" fill="rgb(15,110,86)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12">Contracts</text>
+
+  <!-- MySQL -->
+  <rect x="40" y="330" width="150" height="52" rx="8" fill="rgb(250,238,218)" stroke="rgb(133,79,11)" stroke-width="0.5"/>
+  <text x="115" y="352" text-anchor="middle" dominant-baseline="central" fill="rgb(99,56,6)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" font-weight="500">MySQL 8</text>
+  <text x="115" y="370" text-anchor="middle" dominant-baseline="central" fill="rgb(133,79,11)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12">port 3306</text>
+
+  <!-- phpMyAdmin -->
+  <rect x="370" y="330" width="150" height="52" rx="8" fill="rgb(241,239,232)" stroke="rgb(95,94,90)" stroke-width="0.5"/>
+  <text x="445" y="352" text-anchor="middle" dominant-baseline="central" fill="rgb(68,68,65)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" font-weight="500">phpMyAdmin</text>
+  <text x="445" y="370" text-anchor="middle" dominant-baseline="central" fill="rgb(95,94,90)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12">port 8080</text>
+
+  <!-- Arrow: Laravel → MySQL -->
+  <line x1="215" y1="286" x2="136" y2="328" stroke="rgb(115,114,108)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="158" y="301" text-anchor="middle" fill="rgb(61,61,58)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="11">Eloquent / SQL</text>
+
+  <!-- Arrow: phpMyAdmin → MySQL -->
+  <line x1="370" y1="356" x2="192" y2="356" stroke="rgb(115,114,108)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="281" y="348" text-anchor="middle" fill="rgb(61,61,58)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="11">DB admin UI</text>
+</svg>
