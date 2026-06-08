@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const authClient = axios.create({
-  baseURL: `${import.meta.env.VITE_AUTH_URL}/auth`,
+  baseURL: `${import.meta.env.VITE_GATEWAY_URL}/auth`,
 })
 
 authClient.interceptors.request.use((config) => {

@@ -1,4 +1,17 @@
 services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./api-gateway:/app
+      - gateway_node_modules:/app/node_modules
+    environment:
+      PORT: 80
+    depends_on:
+      - auth-service
+      - backend
+
   auth-service:
     build: ./auth-service
     ports:
@@ -40,8 +53,7 @@ services:
     volumes:
       - ./property-management-frontend:/app
     environment:
-      VITE_API_URL: http://localhost:8000
-      VITE_AUTH_URL: http://localhost:3001
+      VITE_GATEWAY_URL: http://localhost
 
   db:
     image: mysql:8.0
@@ -67,3 +79,4 @@ services:
 volumes:
   db_data:
   auth_node_modules:
+  gateway_node_modules:
