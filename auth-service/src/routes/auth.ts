@@ -1,28 +1,28 @@
 import { Router, Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import type { RowDataPacket, ResultSetHeader } from 'mysql2'
-import pool from '../db'
 
 const router = Router()
 
-interface UserRow extends RowDataPacket {
+const USER_SERVICE = process.env.USER_SERVICE_URL ?? 'http://user-service:3002'
+
+interface UserRow {
   id: number
   name: string
   email: string
   password: string
 }
 
-interface AuthBody {
-  name?: string
-  email?: string
-  password?: string
-}
-
 interface JwtPayload extends jwt.JwtPayload {
   sub: number
   name: string
   email: string
+}
+
+interface AuthBody {
+  name?: string
+  email?: string
+  password?: string
 }
 
 function sign(user: { id: number; name: string; email: string }): string {
@@ -34,74 +34,66 @@ function sign(user: { id: number; name: string; email: string }): string {
 }
 
 router.post('/register', async (req: Request<object, object, AuthBody>, res: Response): Promise<void> => {
-  try {
-    const { name, email, password } = req.body
+  const { name, email, password } = req.body
 
-    if (!name || !email || !password) {
-      res.status(422).json({ message: 'name, email, and password are required.' })
-      return
-    }
-    if (password.length < 8) {
-      res.status(422).json({ errors: { password: ['Must be at least 8 characters.'] } })
-      return
-    }
-
-    const [existing] = await pool.query<RowDataPacket[]>(
-      'SELECT id FROM users WHERE email = ?',
-      [email],
-    )
-    if (existing.length > 0) {
-      res.status(422).json({ errors: { email: ['The email has already been taken.'] } })
-      return
-    }
-
-    const hashed = await bcrypt.hash(password, 12)
-    const [result] = await pool.query<ResultSetHeader>(
-      'INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())',
-      [name, email, hashed],
-    )
-
-    const user = { id: result.insertId, name, email }
-    res.status(201).json({ user, token: sign(user) })
-  } catch (err) {
-    console.error('register:', (err as Error).message)
-    res.status(500).json({ message: 'Server error.' })
+  if (!name || !email || !password) {
+    res.status(422).json({ message: 'name, email, and password are required.' })
+    return
   }
+  if (password.length < 8) {
+    res.status(422).json({ errors: { password: ['Must be at least 8 characters.'] } })
+    return
+  }
+
+  const hashed = await bcrypt.hash(password, 12)
+
+  const userRes = await fetch(`${USER_SERVICE}/users`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password: hashed }),
+  })
+
+  if (!userRes.ok) {
+    const body = await userRes.json() as Record<string, unknown>
+    res.status(userRes.status).json(body)
+    return
+  }
+
+  const user = await userRes.json() as UserRow
+  res.status(201).json({ user: { id: user.id, name: user.name, email: user.email }, token: sign(user) })
 })
 
 router.post('/login', async (req: Request<object, object, AuthBody>, res: Response): Promise<void> => {
-  try {
-    const { email, password } = req.body
+  const { email, password } = req.body
 
-    if (!email || !password) {
-      res.status(422).json({ message: 'email and password are required.' })
-      return
-    }
-
-    const [rows] = await pool.query<UserRow[]>(
-      'SELECT id, name, email, password FROM users WHERE email = ?',
-      [email],
-    )
-    const row = rows[0]
-
-    if (!row || !(await bcrypt.compare(password, row.password))) {
-      res.status(422).json({ errors: { email: ['The provided credentials are incorrect.'] } })
-      return
-    }
-
-    const user = { id: row.id, name: row.name, email: row.email }
-    res.json({ user, token: sign(user) })
-  } catch (err) {
-    console.error('login:', (err as Error).message)
-    res.status(500).json({ message: 'Server error.' })
+  if (!email || !password) {
+    res.status(422).json({ message: 'email and password are required.' })
+    return
   }
+
+  const userRes = await fetch(`${USER_SERVICE}/users/email/${encodeURIComponent(email)}`)
+
+  if (!userRes.ok) {
+    res.status(422).json({ errors: { email: ['The provided credentials are incorrect.'] } })
+    return
+  }
+
+  const user = await userRes.json() as UserRow
+
+  if (!(await bcrypt.compare(password, user.password))) {
+    res.status(422).json({ errors: { email: ['The provided credentials are incorrect.'] } })
+    return
+  }
+
+  res.json({ user: { id: user.id, name: user.name, email: user.email }, token: sign(user) })
 })
 
-// JWT is stateless — the client simply discards the token on logout
+// JWT is stateless — the client discards the token; nothing to invalidate server-side
 router.post('/logout', (_req: Request, res: Response): void => {
   res.json({ message: 'Logged out successfully.' })
 })
 
+// /me returns data from the JWT payload — avoids a round-trip to user-service
 router.get('/me', (req: Request, res: Response): void => {
   const auth = req.headers.authorization ?? ''
   if (!auth.startsWith('Bearer ')) {

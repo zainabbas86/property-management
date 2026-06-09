@@ -22,6 +22,13 @@ app.use('/auth', createProxyMiddleware({
   onError,
 }))
 
+// /users/* → user-service  (note: /users/email/:email is internal — auth-service bypasses the gateway)
+app.use('/users', createProxyMiddleware({
+  target: 'http://user-service:3002',
+  changeOrigin: true,
+  onError,
+}))
+
 app.use('/api', createProxyMiddleware({
   target: 'http://backend:8000',
   changeOrigin: true,
